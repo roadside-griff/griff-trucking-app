@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111315">
+<title>Griff Trucking — Owner App</title>
+<style>
+:root{--bg:#0d0f10;--panel:#171a1c;--panel2:#1e2225;--line:#30363a;--text:#f2f3f4;--muted:#9ba3a8;--accent:#c5c9cc;--green:#63d39b;--red:#ff7474;--yellow:#e5c66a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:620px;margin:auto;min-height:100vh;padding-bottom:82px}
+header{padding:18px 18px 10px;position:sticky;top:0;background:rgba(13,15,16,.94);backdrop-filter:blur(12px);z-index:5;border-bottom:1px solid #202427}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border:1px solid #656b70;border-radius:13px;display:grid;place-items:center;font-weight:900;font-size:20px;background:linear-gradient(145deg,#34383b,#111315);box-shadow:inset 0 0 18px #000}.brand b{font-size:18px;letter-spacing:1.5px}.brand small{display:block;color:var(--muted)}
+main{padding:16px}.screen{display:none}.screen.active{display:block}
+h1{font-size:25px;margin:6px 0 4px}.sub{color:var(--muted);margin-bottom:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}.bigbtn{min-height:126px;text-align:left;display:flex;flex-direction:column;justify-content:space-between}.bigbtn strong{font-size:17px}.bigbtn span{color:var(--muted);font-size:12px}.icon{font-size:30px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.stat b{font-size:23px}.stat small{color:var(--muted);display:block;margin-bottom:4px}
+.list{display:grid;gap:10px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.item{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}.item h3{margin:0 0 5px;font-size:16px}.muted{color:var(--muted)}.moneyin{color:var(--green)}.moneyout{color:var(--red)}.warn{color:var(--yellow)}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:11px 14px;border-radius:11px}.primary{background:#d5d8da;color:#101214;border-color:#d5d8da;font-weight:700}.danger{color:#ff9b9b}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.tabs button{white-space:nowrap}.tabs .on{border-color:#cfd3d5;background:#303438}
+form{display:grid;gap:11px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;background:#111416;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px}.field textarea{min-height:80px;resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sectiontitle{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:20px 0 8px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(15,17,18,.97);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:10}.nav{max-width:620px;width:100%;display:grid;grid-template-columns:repeat(5,1fr)}.nav button{border:0;background:none;color:var(--muted);padding:10px 3px 12px;font-size:11px}.nav button.on{color:#fff}.nav span{display:block;font-size:19px;margin-bottom:2px}
+.empty{text-align:center;padding:28px 10px;color:var(--muted)}.profit{font-size:19px;font-weight:800}.badge{padding:4px 8px;border-radius:999px;background:#292e32;color:#cbd0d4;font-size:11px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+@media(min-width:700px){.app{border-left:1px solid #202427;border-right:1px solid #202427}.bottom{left:50%;transform:translateX(-50%);width:620px}.app{padding-bottom:82px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div class="logo">G7</div><div><b>GRIFF TRUCKING</b><small>Owner Control Center</small></div></div></header>
+<main>
+<section id="home" class="screen active">
+<h1>Dashboard</h1><div class="sub" id="today"></div>
+<div class="grid">
+<button class="card bigbtn" onclick="show('roadside');newRoadside()"><div class="icon">🛞</div><strong>ROADSIDE SERVICE</strong><span>Heavy-duty tire & roadside jobs</span></button>
+<button class="card bigbtn" onclick="show('loads');newLoad()"><div class="icon">🚛</div><strong>HAUL A LOAD</strong><span>Power-only & freight jobs</span></button>
+</div>
+<div class="stats">
+<div class="card stat"><small>Money In</small><b class="moneyin" id="dashIn">$0</b></div>
+<div class="card stat"><small>Money Out</small><b class="moneyout" id="dashOut">$0</b></div>
+<div class="card stat"><small>Profit</small><b id="dashProfit">$0</b></div>
+<div class="card stat"><small>Active Work</small><b id="dashActive">0</b></div>
+</div>
+<div class="sectiontitle">Alerts</div><div id="alerts" class="list"></div>
+<div class="sectiontitle">Recent Activity</div><div id="recent" class="list"></div>
+</section>
+
+<section id="roadside" class="screen"><h1>Roadside Service</h1><div class="sub">Track every service call and job profit.</div>
+<div class="toolbar"><button class="btn primary" onclick="newRoadside()">＋ New Roadside Job</button></div><div id="roadsideList" class="list"></div></section>
+
+<section id="loads" class="screen"><h1>Haul a Load</h1><div class="sub">Power-only and freight job tracking.</div>
+<div class="toolbar"><button class="btn primary" onclick="newLoad()">＋ New Load</button></div><div id="loadList" class="list"></div></section>
+
+<section id="inventory" class="screen"><h1>Inventory</h1><div class="sub">Tires, parts, tools and supplies.</div>
+<div class="toolbar"><button class="btn primary" onclick="newInventory()">＋ Add Item</button></div><div id="inventoryList" class="list"></div></section>
+
+<section id="money" class="screen"><h1>Money In / Out</h1><div class="sub">Business income and expenses.</div>
+<div class="stats"><div class="card stat"><small>Income</small><b class="moneyin" id="moneyIn">$0</b></div><div class="card stat"><small>Expenses</small><b class="moneyout" id="moneyOut">$0</b></div></div>
+<div class="toolbar"><button class="btn primary" onclick="newTransaction('Income')">＋ Money In</button><button class="btn" onclick="newTransaction('Expense')">＋ Money Out</button></div>
+<div id="moneyList" class="list"></div></section>
+
+<section id="reports" class="screen"><h1>Reports</h1><div class="sub">Business performance at a glance.</div><div id="reportsBox"></div></section>
+
+<section id="maintenance" class="screen"><h1>Maintenance</h1><div class="sub">Keep the truck and equipment records in one place.</div>
+<div class="toolbar"><button class="btn primary" onclick="newMaintenance()">＋ Maintenance Record</button></div><div id="maintenanceList" class="list"></div></section>
+
+<section id="settings" class="screen"><h1>Settings</h1><div class="sub">Owner-only app settings stored on this device.</div>
+<form onsubmit="saveSettings(event)" class="card">
+<div class="field"><label>Business Name</label><input id="bizName"></div>
+<div class="field"><label>Owner Name</label><input id="ownerName"></div>
+<div class="field"><label>Business Phone</label><input id="bizPhone"></div>
+<div class="field"><label>Default Labor Rate ($/hr)</label><input id="laborRate" type="number" step="0.01"></div>
+<button class="btn primary">Save Settings</button></form>
+<div class="sectiontitle">Data</div><div class="card"><button class="btn danger" onclick="resetData()">Reset all local app data</button><p class="muted">This prototype stores data locally in this browser. Production deployment should use secure cloud storage and backups.</p></div>
+</section>
+</main>
+<div class="bottom"><nav class="nav">
+<button onclick="show('home')" data-nav="home"><span>⌂</span>Home</button>
+<button onclick="show('roadside')" data-nav="roadside"><span>🛞</span>Jobs</button>
+<button onclick="show('inventory')" data-nav="inventory"><span>📦</span>Inventory</button>
+<button onclick="show('money')" data-nav="money"><span>💵</span>Money</button>
+<button onclick="show('reports')" data-nav="reports"><span>📊</span>Reports</button>
+</nav></div>
+</div>
+
+<script>
+const KEY='griff_full_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{roadside:[],loads:[],inventory:[],transactions:[],maintenance:[],settings:{bizName:'Griff Trucking',ownerName:'',bizPhone:'',laborRate:125}};
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render();}
+function money(n){return '$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function id(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function show(name){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(name).classList.add('active');document.querySelectorAll('[data-nav]').forEach(x=>x.classList.toggle('on',x.dataset.nav===name));render()}
+function newRoadside(){
+const c=prompt('Customer name / company:',''); if(c===null)return;
+const loc=prompt('Job location:',''); if(loc===null)return;
+const service=prompt('Service performed:','Tire repair'); if(service===null)return;
+const labor=+prompt('Labor charge:','0')||0, parts=+prompt('Parts/tire charge:','0')||0, other=+prompt('Other charge:','0')||0;
+const exp=+prompt('Other job expense:','0')||0;
+db.roadside.unshift({id:id('rs'),date:new Date().toISOString(),customer:c,location:loc,service,labor,parts,other,expense:exp,status:'Completed',notes:''});
+db.transactions.unshift({id:id('tx'),date:new Date().toISOString(),type:'Income',category:'Roadside Service',amount:labor+parts+other,ref:c});
+if(parts>0) db.transactions.unshift({id:id('tx'),date:new Date().toISOString(),type:'Expense',category:'Parts/Tires',amount:parts,ref:c});
+save();show('roadside')
+}
+function newLoad(){
+const broker=prompt('Broker / customer:',''); if(broker===null)return;
+const pickup=prompt('Pickup:',''); if(pickup===null)return;
+const delivery=prompt('Delivery:',''); if(delivery===null)return;
+const rate=+prompt('Load rate:','0')||0, miles=+prompt('Miles:','0')||0, fuel=+prompt('Fuel expense:','0')||0, tolls=+prompt('Tolls:','0')||0, other=+prompt('Other expenses:','0')||0;
+db.loads.unshift({id:id('ld'),date:new Date().toISOString(),broker,pickup,delivery,rate,miles,fuel,tolls,other,status:'Delivered',paid:false,notes:''});
+db.transactions.unshift({id:id('tx'),date:new Date().toISOString(),type:'Income',category:'Load Payment',amount:rate,ref:broker});
+save();show('loads')
+}
+function newInventory(){
+const name=prompt('Item name:','');if(name===null)return;const cat=prompt('Category (Tires/Parts/Tools/etc.):','Tires');if(cat===null)return;
+const qty=+prompt('Quantity:','1')||0,cost=+prompt('Cost each:','0')||0,min=+prompt('Minimum stock alert:','1')||0;
+db.inventory.unshift({id:id('iv'),name,cat,qty,cost,min,supplier:'',location:'',notes:''});save();show('inventory')
+}
+function newTransaction(type){
+const amount=+prompt(type+' amount:','0')||0;if(!amount)return;const cat=prompt('Category:',type==='Income'?'Roadside Service':'Fuel');if(cat===null)return;
+const ref=prompt('Customer/vendor or note:','')||'';
+db.transactions.unshift({id:id('tx'),date:new Date().toISOString(),type,category:cat,amount,ref});save();show('money')
+}
+function newMaintenance(){
+const service=prompt('Maintenance/service:','Oil change');if(service===null)return;const miles=prompt('Current mileage:','')||'';const cost=+prompt('Cost:','0')||0;
+db.maintenance.unshift({id:id('mt'),date:new Date().toISOString(),service,miles,cost,notes:''});if(cost)db.transactions.unshift({id:id('tx'),date:new Date().toISOString(),type:'Expense',category:'Maintenance',amount:cost,ref:service});save();show('maintenance')
+}
+function saveSettings(e){e.preventDefault();db.settings={bizName:bizName.value,ownerName:ownerName.value,bizPhone:bizPhone.value,laborRate:+laborRate.value||0};save();alert('Settings saved.')}
+function resetData(){if(confirm('Delete all app data on this device?')){localStorage.removeItem(KEY);location.reload()}}
+function del(type,idx){if(confirm('Delete this record?')){db[type].splice(idx,1);save()}}
+function render(){
+today.textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+const inc=db.transactions.filter(x=>x.type==='Income').reduce((a,x)=>a+x.amount,0);
+const out=db.transactions.filter(x=>x.type==='Expense').reduce((a,x)=>a+x.amount,0);
+dashIn.textContent=money(inc);dashOut.textContent=money(out);dashProfit.textContent=money(inc-out);
+dashActive.textContent=db.roadside.filter(x=>x.status!=='Completed'&&x.status!=='Cancelled').length+db.loads.filter(x=>!['Delivered','Paid','Cancelled'].includes(x.status)).length;
+alerts.innerHTML=db.inventory.filter(x=>x.qty<=x.min).map(x=>`<div class="item"><div class="row"><b>⚠️ ${esc(x.name)}</b><span class="warn">${x.qty} left</span></div><small class="muted">Minimum ${x.min}</small></div>`).join('')||'<div class="empty">No inventory alerts.</div>';
+recent.innerHTML=db.transactions.slice(0,5).map(x=>`<div class="item"><div class="row"><b>${esc(x.category)}</b><b class="${x.type==='Income'?'moneyin':'moneyout'}">${x.type==='Income'?'+':'-'}${money(x.amount)}</b></div><small class="muted">${esc(x.ref||'')} · ${new Date(x.date).toLocaleDateString()}</small></div>`).join('')||'<div class="empty">No activity yet.</div>';
+roadsideList.innerHTML=db.roadside.map((x,i)=>{const profit=x.labor+x.parts+x.other-x.expense;return `<div class="item"><div class="row"><h3>${esc(x.service)}</h3><span class="badge">${esc(x.status)}</span></div><div>${esc(x.customer)} · ${esc(x.location)}</div><div class="row"><small class="muted">${new Date(x.date).toLocaleDateString()}</small><b class="profit">${money(profit)}</b></div><small class="muted">Charge ${money(x.labor+x.parts+x.other)} · Expense ${money(x.expense)}</small><div class="actions"><button class="btn" onclick="del('roadside',${i})">Delete</button></div></div>`}).join('')||'<div class="empty">No roadside jobs yet.</div>';
+loadList.innerHTML=db.loads.map((x,i)=>{const ex=x.fuel+x.tolls+x.other, p=x.rate-ex;return `<div class="item"><div class="row"><h3>${esc(x.pickup)} → ${esc(x.delivery)}</h3><span class="badge">${esc(x.paid?'Paid':x.status)}</span></div><div>${esc(x.broker)}</div><div class="row"><small class="muted">${x.miles?x.miles+' miles':''}</small><b class="profit">${money(p)}</b></div><small class="muted">Rate ${money(x.rate)} · Expenses ${money(ex)}</small><div class="actions"><button class="btn" onclick="markPaid(${i})">${x.paid?'Paid':'Mark Paid'}</button><button class="btn" onclick="del('loads',${i})">Delete</button></div></div>`}).join('')||'<div class="empty">No loads yet.</div>';
+inventoryList.innerHTML=db.inventory.map((x,i)=>`<div class="item"><div class="row"><h3>${esc(x.name)}</h3><span class="${x.qty<=x.min?'warn':''}">${x.qty} in stock</span></div><small class="muted">${esc(x.cat)} · ${money(x.cost)} each · Value ${money(x.qty*x.cost)}</small><div class="actions"><button class="btn" onclick="adjustInv(${i},1)">＋</button><button class="btn" onclick="adjustInv(${i},-1)">−</button><button class="btn" onclick="del('inventory',${i})">Delete</button></div></div>`).join('')||'<div class="empty">No inventory yet.</div>';
+moneyIn.textContent=money(inc);moneyOut.textContent=money(out);
+moneyList.innerHTML=db.transactions.map((x,i)=>`<div class="item"><div class="row"><h3>${esc(x.category)}</h3><b class="${x.type==='Income'?'moneyin':'moneyout'}">${x.type==='Income'?'+':'-'}${money(x.amount)}</b></div><small class="muted">${esc(x.ref||'')} · ${new Date(x.date).toLocaleDateString()}</small><div class="actions"><button class="btn" onclick="del('transactions',${i})">Delete</button></div></div>`).join('')||'<div class="empty">No transactions yet.</div>';
+maintenanceList.innerHTML=db.maintenance.map((x,i)=>`<div class="item"><div class="row"><h3>${esc(x.service)}</h3><b>${money(x.cost)}</b></div><small class="muted">${new Date(x.date).toLocaleDateString()} · Mileage ${esc(x.miles)}</small><div class="actions"><button class="btn" onclick="del('maintenance',${i})">Delete</button></div></div>`).join('')||'<div class="empty">No maintenance records yet.</div>';
+const rsRev=db.roadside.reduce((a,x)=>a+x.labor+x.parts+x.other,0),rsExp=db.roadside.reduce((a,x)=>a+x.expense,0);
+const ldRev=db.loads.reduce((a,x)=>a+x.rate,0),ldExp=db.loads.reduce((a,x)=>a+x.fuel+x.tolls+x.other,0);
+reportsBox.innerHTML=`<div class="stats"><div class="card stat"><small>Roadside Revenue</small><b>${money(rsRev)}</b></div><div class="card stat"><small>Roadside Profit</small><b>${money(rsRev-rsExp)}</b></div><div class="card stat"><small>Load Revenue</small><b>${money(ldRev)}</b></div><div class="card stat"><small>Load Profit</small><b>${money(ldRev-ldExp)}</b></div></div><div class="card"><div class="row"><b>Overall Net</b><b class="profit">${money(inc-out)}</b></div><hr style="border-color:#30363a;border-width:1px 0 0;margin:14px 0"><div class="row"><span class="muted">Inventory value</span><span>${money(db.inventory.reduce((a,x)=>a+x.qty*x.cost,0))}</span></div><div class="row"><span class="muted">Maintenance records</span><span>${db.maintenance.length}</span></div></div>`;
+bizName.value=db.settings.bizName;ownerName.value=db.settings.ownerName;bizPhone.value=db.settings.bizPhone;laborRate.value=db.settings.laborRate;
+}
+function adjustInv(i,n){db.inventory[i].qty=Math.max(0,db.inventory[i].qty+n);save()}
+function markPaid(i){if(!db.loads[i].paid){db.loads[i].paid=true;save()}}
+function newRoadside(){const c=prompt('Customer name / company:','');if(c===null)return;const loc=prompt('Job location:','');if(loc===null)return;const service=prompt('Service performed:','Tire repair');if(service===null)return;const labor=+prompt('Labor charge:','0')||0,parts=+prompt('Parts/tire charge:','0')||0,other=+prompt('Other charge:','0')||0,exp=+prompt('Other job expense:','0')||0;db.roadside.unshift({id:id('rs'),date:new Date().toISOString(),customer:c,location:loc,service,labor,parts,other,expense:exp,status:'Completed',notes:''});db.transactions.unshift({id:id('tx'),date:new Date().toISOString(),type:'Income',category:'Roadside Service',amount:labor+parts+other,ref:c});if(parts>0)db.transactions.unshift({id:id('tx'),date:new Date().toISOString(),type:'Expense',category:'Parts/Tires',amount:parts,ref:c});save();show('roadside')}
+render();
+</script>
+</body></html>
